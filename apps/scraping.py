@@ -3,25 +3,30 @@ from bs4 import BeautifulSoup
 
 executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
 browser = Browser('chrome', **executable_path)
+def mars_news(browser):
+    url = 'https://mars.nasa.gov/news/'
+    browser.visit(url)
+    browser.is_element_present_by_css("ul.item_list li.slide", wait_time=1)
 
-url = 'https://mars.nasa.gov/news/'
-browser.visit(url)
-browser.is_element_present_by_css("ul.item_list li.slide", wait_time=1)
+    html = browser.html
+    news_soup = BeautifulSoup(html, 'html.parser')
 
-html = browser.html
-news_soup = BeautifulSoup(html, 'html.parser')
-slide_elem = news_soup.select_one('ul.item_list li.slide')
+try:    
+    slide_elem = news_soup.select_one('ul.item_list li.slide')
 
-slide_elem.find("div", class_='content_title')
+    slide_elem.find("div", class_='content_title')
 
-news_title = slide_elem.find("div", class_='content_title').get_text()
-news_title
+    news_title = slide_elem.find("div", class_='content_title').get_text()
+    news_title
 
-news_p = slide_elem.find('div', class_="article_teaser_body").get_text()
-news_p
+    news_p = slide_elem.find('div', class_="article_teaser_body").get_text()
+    news_p
+    return news_title, news_p
 
 url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
 browser.visit(url)
+    except AttributeError:
+        return None, None
 
 full_image_elem = browser.find_by_id('full_image')
 full_image_elem.click()
@@ -40,11 +45,16 @@ img_url = f'https://www.jpl.nasa.gov{img_url_rel}'
 img_url
 
 import pandas as pd
+def mars_facts():
+    try:
+        df = pd.read_html('http://space-facts.com/mars/')[0]
+    except BaseException:
+        return None
 
-df = pd.read_html('http://space-facts.com/mars/')[0]
 df.columns=['description', 'value']
 df.set_index('description', inplace=True)
-df
+return df.to.html
+
 
 browser.quit()
 
